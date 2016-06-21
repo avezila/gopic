@@ -1,35 +1,17 @@
 package main
 
-import (
-	"fmt"
-	"log"
-	"net"
-
-	"./pinger"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-)
+import "./pinger"
+import "./auth"
 
 func main() {
+	server, err := NewServer(":5353")
 
-	listener, err := net.Listen("tcp", ":5353")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+	if _, err = pinger.New(server.grpc); err != nil {
+		panic(err)
 	}
-	gserver := grpc.NewServer()
-
-	server, err := pinger.New()
-	if err != nil {
+	if _, err = auth.New(server.grpc); err != nil {
 		panic(err)
 	}
 
-	pinger.RegisterPingerServer(gserver, server)
-
-	ret, err := server.Ping(context.Background(), &pinger.Req{"ping"})
-	fmt.Println(ret)
-	if err != nil {
-		panic(err)
-	}
-
-	gserver.Serve(listener)
+	server.Serve()
 }

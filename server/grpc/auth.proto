@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package auth;
+
+
+service Auth {
+  rpc Register(RegisterReq) returns (RegisterRes) {}
+}
+
+enum Error {
+  LOGIN_EXISTS = 0;
+  EMAIL_EXISTS = 1;
+  BAD_PASSWORD = 2;
+}
+
+message RegisterReq {
+  string login = 1;
+  string password = 2;
+  string email = 3;
+}
+
+message RegisterRes {
+  string id = 1;
+  string session = 2;
+  repeated Error error = 3;
+}
