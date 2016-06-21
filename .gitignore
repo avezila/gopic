@@ -1,0 +1,5 @@
+server/build
+server/data
+**/*.swp
+**/*.swo
+**/*.pb.go
