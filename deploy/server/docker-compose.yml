@@ -1,0 +1,17 @@
+version : '2'
+
+services:
+  gopic-server:
+    image : avezila/gopic-server
+    ports:
+      - "5353:5353"
+    depends_on:
+      - gopic-server-mongo
+    links:
+      - gopic-server-mongo
+  gopic-server-mongo:
+    image: avezila/gopic-server-mongo
+    volumes:
+      - ../../server/data/mongo:/data/db
+      - ../../server/mongo/:/setup
+
