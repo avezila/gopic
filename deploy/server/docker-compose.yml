@@ -8,7 +8,7 @@ services:
     depends_on:
       - gopic-server-mongo
     links:
-      - gopic-server-mongo
+      - gopic-server-mongo:mongo
   gopic-server-mongo:
     image: avezila/gopic-server-mongo
     volumes:

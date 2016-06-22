@@ -2,6 +2,11 @@ var prompt = require('prompt');
 var grpc = require('grpc');
 var fs = require('fs');
 
+var repo = process.argv[2] || "localhost:5353";
+
+if (!repo.match(/\:\d+/))
+  repo = repo+":5353";
+
 /*
 var auth = grpc.load('./grpc/auth.proto').auth;
 var c = new auth.Auth("localhost:5353",grpc.credentials.createInsecure());
@@ -28,7 +33,7 @@ function showServices(){
       var s = rpc[pack][service].service;
       if (!s) continue;
       if (!inited){
-        client[service] = new rpc[pack][service]("localhost:5353",
+        client[service] = new rpc[pack][service](repo,
             grpc.credentials.createInsecure());
         //console.log(client[service].__proto__)
       }
@@ -71,7 +76,7 @@ function sendRequest(obj,foo,err,res){
     if (err){
       console.error("err:",err);
     }else {
-      console.log("response:", res.message);
+      console.log("response:", res);
     }
     return getServ(); 
   });

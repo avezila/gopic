@@ -11,6 +11,9 @@ enum Error {
   LOGIN_EXISTS = 0;
   EMAIL_EXISTS = 1;
   BAD_PASSWORD = 2;
+  BAD_LOGIN = 5;
+  BAD_EMAIL = 6;
+  INTERNAL = 4;
 }
 
 message RegisterReq {
@@ -20,7 +23,6 @@ message RegisterReq {
 }
 
 message RegisterRes {
-  string id = 1;
   string session = 2;
   repeated Error error = 3;
 }
