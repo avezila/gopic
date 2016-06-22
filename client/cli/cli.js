@@ -24,6 +24,7 @@ dir.forEach(function(file){
 });
 
 var client = {};
+var rpcs = {};
 prompt.start();
 var inited = false;
 function showServices(){
@@ -35,6 +36,10 @@ function showServices(){
       if (!inited){
         client[service] = new rpc[pack][service](repo,
             grpc.credentials.createInsecure());
+        for (var name in client[service].__proto__){
+          rpcs[service.toLowerCase()+"."+name.toLowerCase()] = [client[service],client[service][name]];//.bind(client[service]);
+          rpcs[name.toLowerCase()] = [client[service],client[service][name]];//.bind(client[service]);
+        };
         //console.log(client[service].__proto__)
       }
       for (var i in s.children){
@@ -53,10 +58,16 @@ function getServ (){
 
 function getParams (err,res){
 	if (err)return getServ();
-	var [service,func] = res.call.split(".");
+	//var [service,func] = res.call.split(".");
   //console.log(service,func)
-  var obj = client[service];
-  var foo = obj[func.toLowerCase()];
+  //var obj = client[service];
+  //console.log(Object.keys(obj.__proto__))
+  var foo = rpcs[res.call.toLowerCase()][1]; // obj[func.toLowerCase()];
+  var obj = rpcs[res.call.toLowerCase()][0]; // obj[func.toLowerCase()];
+  if (!foo){
+    console.error("unknown rpc");
+    return getServ();
+  }
   var types = foo.requestType._fieldsByName;
   console.log(foo.requestType.name+":")
   for (var key in types){
@@ -72,12 +83,14 @@ function getParams (err,res){
 
 function sendRequest(obj,foo,err,res){
   if (err) return getServ();
+  var t = new Date().getTime();
   foo.call(obj,res,function(err,res){
     if (err){
       console.error("err:",err);
     }else {
       console.log("response:", res);
     }
+    console.log(`time: ${new Date().getTime()-t}ms`);
     return getServ(); 
   });
   //console.log(obj,foo,err,res);

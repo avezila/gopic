@@ -94,3 +94,137 @@ func (s *Auth) Register(ctx context.Context, req *RegisterReq) (res *RegisterRes
 	}
 	return &RegisterRes{Session: session}, nil
 }
+
+func (s *Auth) Login(ctx context.Context, req *LoginReq) (res *LoginRes, err error) {
+	email := req.Login
+	errors := []Error{}
+	defer func() {
+		if err != nil {
+			errors = append(errors, Error_INTERNAL)
+		}
+		if len(errors) != 0 {
+			res = &LoginRes{Error: errors}
+		}
+	}()
+	req.Login = strings.ToLower(req.Login)
+	email = strings.ToLower(email)
+
+	isLogin := len(req.Login) >= 1
+	isEmail := govalidator.IsEmail(email)
+	if !isEmail && !isLogin {
+		errors = append(errors, Error_BAD_LOGIN)
+		return
+	}
+	row := &struct {
+		Id       string
+		Password []byte
+		Login    string
+	}{}
+
+	err = nil
+	if isEmail {
+		err = s.userDb.Find(bson.M{"email": email}).One(row)
+	}
+	if !isEmail || (err != nil && isLogin) {
+		err = s.userDb.Find(bson.M{"login": req.Login}).One(row)
+	}
+	if err != nil {
+		errors = append(errors, Error_LOGIN_IS_NOT_EXISTS)
+		err = nil
+		return
+	}
+	if bcrypt.CompareHashAndPassword(row.Password,
+		[]byte(row.Login+req.Password)) != nil {
+		errors = append(errors, Error_BAD_PASSWORD)
+		return
+	}
+
+	session, err := GenerateRandomString(32)
+	if err != nil {
+		return
+	}
+
+	err = s.userDb.Update(bson.M{"id": row.Id}, bson.M{
+		"$push": bson.M{"session": session},
+	})
+	if err != nil {
+		return
+	}
+	return &LoginRes{Session: session}, nil
+}
+
+func (s *Auth) CheckSession(ctx context.Context,
+	req *CheckSessionReq) (res *CheckSessionRes, err error) {
+	errors := []Error{}
+	defer func() {
+		if err != nil {
+			errors = append(errors, Error_INTERNAL)
+		}
+		if len(errors) != 0 {
+			res = &CheckSessionRes{Error: errors}
+		}
+	}()
+	n, err := s.userDb.Find(bson.M{
+		"session": bson.M{"$in": []string{req.Session}}}).Count()
+	if err != nil {
+		return
+	} else if n == 0 {
+		errors = append(errors, Error_BAD_SESSION)
+		return
+	}
+	return &CheckSessionRes{}, nil
+}
+
+func (s *Auth) Logout(ctx context.Context,
+	req *LogoutReq) (res *LogoutRes, err error) {
+	errors := []Error{}
+	defer func() {
+		if err != nil {
+			errors = append(errors, Error_INTERNAL)
+		}
+		if len(errors) != 0 {
+			res = &LogoutRes{Error: errors}
+		}
+	}()
+	err = s.userDb.Update(bson.M{"session": bson.M{"$in": []string{req.Session}}},
+		bson.M{"$pull": bson.M{"session": req.Session}})
+	if err != nil {
+		errors = append(errors, Error_BAD_SESSION)
+		err = nil
+		return
+	}
+	return &LogoutRes{}, nil
+}
+
+func (s *Auth) UserInfo(ctx context.Context,
+	req *UserInfoReq) (res *UserInfoRes, err error) {
+	errors := []Error{}
+	defer func() {
+		if err != nil {
+			errors = append(errors, Error_INTERNAL)
+		}
+		if len(errors) != 0 {
+			res = &UserInfoRes{Error: errors}
+		}
+	}()
+	user := &struct {
+		Login   string
+		Email   string
+		Session []string
+		Id      string
+	}{}
+	err = s.userDb.Find(bson.M{
+		"session": bson.M{"$in": []string{req.Session}}}).One(user)
+	if err != nil {
+		errors = append(errors, Error_BAD_SESSION)
+		err = nil
+		return
+	}
+
+	return &UserInfoRes{
+		Email:   user.Email,
+		Login:   user.Login,
+		Id:      user.Id,
+		Session: user.Session,
+	}, nil
+}

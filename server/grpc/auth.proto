@@ -5,6 +5,10 @@ package auth;
 
 service Auth {
   rpc Register(RegisterReq) returns (RegisterRes) {}
+  rpc Login(LoginReq) returns (LoginRes) {}
+  rpc Logout(LogoutReq) returns (LogoutRes) {}
+  rpc CheckSession(CheckSessionReq) returns (CheckSessionRes) {}
+  rpc UserInfo(UserInfoReq) returns (UserInfoRes) {}
 }
 
 enum Error {
@@ -13,6 +17,8 @@ enum Error {
   BAD_PASSWORD = 2;
   BAD_LOGIN = 5;
   BAD_EMAIL = 6;
+  BAD_SESSION = 8;
+  LOGIN_IS_NOT_EXISTS = 7;
   INTERNAL = 4;
 }
 
@@ -25,4 +31,44 @@ message RegisterReq {
 message RegisterRes {
   string session = 2;
   repeated Error error = 3;
+}
+
+message LoginReq {
+  string login = 1;
+  string password = 3;
+}
+
+message LoginRes {
+  string session = 1;
+  repeated Error error = 2;
+}
+
+
+message LogoutReq {
+  string session = 1;
+}
+
+message LogoutRes {
+  repeated Error error = 1;
+}
+
+
+message CheckSessionReq {
+  string session = 1;
+}
+
+message CheckSessionRes {
+  repeated Error error = 1;
+}
+
+message UserInfoReq {
+  string session = 1;
+}
+
+message UserInfoRes {
+  repeated Error error = 1;
+  string login = 2;
+  string email = 3;
+  repeated string session = 4;
+  string id = 5;
 }
