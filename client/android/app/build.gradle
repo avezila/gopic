@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 24
@@ -17,13 +18,73 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+        main {
+            proto {
+                // In addition to the default 'src/main/proto'
+                srcDir '../../server/grpc'
+            }
+        }
+    }
+
 }
+
+protobuf {
+    protoc {
+        // The version of protoc must match protobuf-java. If you don't depend on
+        // protobuf-java directly, you will be transitively depending on the
+        // protobuf-java version that grpc depends on.
+        artifact = "com.google.protobuf:protoc:3.0.0-beta-3"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.0.0-SNAPSHOT'  
+        }
+    }
+    generateProtoTasks {
+        /*all()*.plugins{
+            grpc{}
+        }*/
+        all().each { task ->
+            task.builtins {
+                remove javanano
+                java {
+                    option  'lite'
+                    // Options added to --javanano_out
+                    //option 'ignore_services=true'
+                }
+            }
+
+            task.plugins {
+                grpc {
+                    // Options added to --grpc_out
+                    option 'lite'
+                }
+            }
+            /*
+            task.plugins {
+                grpc {
+                    // Write the generated files under
+                    // "$generatedFilesBaseDir/$sourceSet/grpcjava"
+                    outputSubDir = ''
+                }
+            }*/
+        }
+    }
+}
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'io.grpc:grpc-okhttp:0.14.0'
-    compile 'io.grpc:grpc-protobuf-nano:0.14.0'
-    compile 'io.grpc:grpc-stub:0.14.0'
+    //compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-3'
+
+    compile 'javax.annotation:jsr250-api:1.0'
+
+    //compile 'io.grpc:protoc-gen-grpc-java:1.0.0-SNAPSHOT'
+    compile 'io.grpc:grpc-okhttp:1.0.0-SNAPSHOT' // CURRENT_GRPC_VERSION
+    compile 'io.grpc:grpc-protobuf-lite:1.0.0-SNAPSHOT' // CURRENT_GRPC_VERSION
+    compile 'io.grpc:grpc-stub:1.0.0-SNAPSHOT' // CURRENT_GRPC_VERSION
 }
