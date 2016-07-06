@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">Gopic</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_login">Username</string>
+    <string name="prompt_email">Your email address</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_register">Sign up for Gopic</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short(minimum 4 character)</string>
+    <string name="error_incorrect_password">Incorrect password</string>
+    <string name="error_login_exists">This username is already taken</string>
+    <string name="error_email_exists">This email is already used</string>
+    <string name="error_invalid_login">This username is invalid</string>
+    <string name="error_login_is_not_exists">Incorrect username</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 </resources>

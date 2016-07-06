@@ -78,13 +78,17 @@ protobuf {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.0.0'
     //compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-3'
 
-    compile 'javax.annotation:jsr250-api:1.0'
-
+    
     //compile 'io.grpc:protoc-gen-grpc-java:1.0.0-SNAPSHOT'
-    compile 'io.grpc:grpc-okhttp:1.0.0-SNAPSHOT' // CURRENT_GRPC_VERSION
-    compile 'io.grpc:grpc-protobuf-lite:1.0.0-SNAPSHOT' // CURRENT_GRPC_VERSION
-    compile 'io.grpc:grpc-stub:1.0.0-SNAPSHOT' // CURRENT_GRPC_VERSION
-}
+    // CURRENT_GRPC_VERSION
+    // CURRENT_GRPC_VERSION
+    // CURRENT_GRPC_VERSION
+compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'javax.annotation:jsr250-api:1.0'
+    compile 'io.grpc:grpc-okhttp:1.0.0-SNAPSHOT'
+    compile 'io.grpc:grpc-protobuf-lite:1.0.0-SNAPSHOT'
+    compile 'io.grpc:grpc-stub:1.0.0-SNAPSHOT'
+    compile 'com.android.support:design:24.0.0'}
+
